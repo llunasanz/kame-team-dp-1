@@ -1,5 +1,7 @@
-# Equipo Kame - Data Project 1
+# Kame Data Management
+Making your data powerfuler.
 
+# Data Project 1
 ## Master en Data Analytics - EDEM
 ### Curso 2021/2022
 
