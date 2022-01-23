@@ -1,28 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
 
 
-# NO TOCAR
-from faker import Faker
-import keyboard
-import json
-import pandas as pd
-import numpy as np
-import time
-import random
+# SETUP
 from datetime import datetime
+from faker import Faker
 import geopy.distance
 import io
-pd.set_option('display.max_columns', None)
+import keyboard
+import numpy as np
+import pandas as pd
+import random
+import time
 
 
-# In[ ]:
 
 
 faker = Faker('es_ES')
-USERS_TOTAL=1000
+USERS_TOTAL=20000
 MAX_FRIENDS=10
 users={}
 lat_min=39.4
@@ -32,7 +28,6 @@ lon_max=-0.4
 vehicles=["Bike","Train","Car", "Walking"]
 
 
-# In[ ]:
 
 
 def initiate_data():
@@ -60,22 +55,21 @@ def initiate_data():
         user["cp"]=random.randint(46001, 46025)
         user["time"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         users[user["id"]]=user   
-        print(user)
+        # print(user)
     num=0
     for element in users.items():
-        print(f"Generating friends of {num} of {len(users)}")
+        # print(f"Generating friends of {num} of {len(users)}")
         for i in range(0,random.randint(1,MAX_FRIENDS)):
             friend=random.choice(list(users.values()))
             if friend["id"]!=element[0]:
                 users[element[0]]["friends"].append(friend["id"])
             else:
-                print("No friend of yourself") 
+                # print("No friend of yourself") 
         num=num+1
 
     print("DATA GENERATED")
 
 
-# In[ ]:
 
 
 def generate_step():
@@ -99,7 +93,6 @@ def generate_step():
     return users
 
 
-# In[ ]:
 
 
 # Inputs from dataframe
@@ -110,7 +103,6 @@ def get_distance_km(lat1, lat2, lon1, lon2):
     return geopy.distance.distance(pos1, pos2).km
 
 
-# In[ ]:
 
 
 def score_IMC(weight, height):
@@ -127,7 +119,6 @@ def score_IMC(weight, height):
         return 33
 
 
-# In[ ]:
 
 
 def age_bodyfat(age, gender):
@@ -154,7 +145,6 @@ def age_bodyfat(age, gender):
             
 
 
-# In[ ]:
 
 
 def score_bodyfat(age, gender, bodyfat):
@@ -170,7 +160,6 @@ def score_bodyfat(age, gender, bodyfat):
         return 20
 
 
-# In[ ]:
 
 
 def score_cholesterol(cholesterol):
@@ -182,7 +171,6 @@ def score_cholesterol(cholesterol):
         return -100
 
 
-# In[ ]:
 
 
 def score_drink(drinking):
@@ -196,7 +184,6 @@ def score_drink(drinking):
         return -100
 
 
-# In[ ]:
 
 
 # df_1
@@ -214,7 +201,6 @@ def score_km(km_walk, km_bike):
             return 0
 
 
-# In[ ]:
 
 
 # Get the score for each user
@@ -237,11 +223,9 @@ def get_score(df_0, df_1):
     return score
 
 
-# In[ ]:
 
 
 df = pd.DataFrame()
-df_real_time = pd.DataFrame(columns = ['id', 'km_walk', 'km_bike', 'score'])
 col_names = list()
 list(map(lambda x: col_names.append('friend_' + str(x)), range(1,MAX_FRIENDS+1)))
 df_friends = pd.DataFrame(columns = col_names)
@@ -250,7 +234,7 @@ time_count = list()
 iter_np = range(USERS_TOTAL)
 
 while True:
-#     try:  
+    try:  
         if keyboard.is_pressed('q'):  # if key 'q' is pressed 
             print('You Exited the data generator')
             break  
@@ -276,46 +260,51 @@ while True:
             
             if len(df) > USERS_TOTAL:
                 # Add values
-                print(f'Before km_walk and bike: {time.time() - start_time}')
-                df_real_time['km_walk'] = list(map(lambda x: get_distance_km(df_np[-2*USERS_TOTAL+x][-2], 
-                                                                             df_np[-USERS_TOTAL+x][-2], 
-                                                                             df_np[-2*USERS_TOTAL+x][-1], 
-                                                                             df_np[-USERS_TOTAL+x][-1]) 
-                                                   if df_np[-2*USERS_TOTAL+x][3] == 'Walking' and df_np[-USERS_TOTAL+x][3] == 'Walking' 
-                                                   else 0, 
-                                                   iter_np)) \
-                + df_real_time['km_walk']
+                # print(f'Before km_walk and bike: {time.time() - start_time}')
+                rt_np_walk = list(map(lambda x: get_distance_km(df_np[-2*USERS_TOTAL+x][-2], 
+                                                                df_np[-USERS_TOTAL+x][-2], 
+                                                                df_np[-2*USERS_TOTAL+x][-1], 
+                                                                df_np[-USERS_TOTAL+x][-1]) 
+                                      if df_np[-2*USERS_TOTAL+x][3] == 'Walking' and df_np[-USERS_TOTAL+x][3] == 'Walking' 
+                                      else 0, 
+                                      iter_np)) \
+                + rt_np_walk
                 
-                df_real_time['km_bike'] = list(map(lambda x: get_distance_km(df_np[-2*USERS_TOTAL+x][-2], 
-                                                                             df_np[-USERS_TOTAL+x][-2], 
-                                                                             df_np[-2*USERS_TOTAL+x][-1], 
-                                                                             df_np[-USERS_TOTAL+x][-1]) 
-                                                   if df_np[-2*USERS_TOTAL+x][3] == 'Bike' and df_np[-USERS_TOTAL+x][3] == 'Bike' 
-                                                   else 0, 
-                                                   iter_np)) \
-                + df_real_time['km_bike']
-                print(f'Before score: {time.time() - start_time}')
-                df_real_time['score'] = list(map(lambda x: get_score(temp_np[x], 
-                                                                     np.array(df_real_time.iloc[x])), 
-                                                 iter_np)) \
-                + df_real_time['score']                
+                rt_np_bike = list(map(lambda x: get_distance_km(df_np[-2*USERS_TOTAL+x][-2], 
+                                                                df_np[-USERS_TOTAL+x][-2], 
+                                                                df_np[-2*USERS_TOTAL+x][-1], 
+                                                                df_np[-USERS_TOTAL+x][-1]) 
+                                      if df_np[-2*USERS_TOTAL+x][3] == 'Bike' and df_np[-USERS_TOTAL+x][3] == 'Bike' 
+                                      else 0, 
+                                      iter_np)) \
+                + rt_np_bike
+                
+                # print(f'Before score: {time.time() - start_time}')
+                rt_np_score = list(map(lambda x: get_score(temp_np[x], 
+                                                           np.array(df_real_time.iloc[x])), 
+                                       iter_np)) \
+                + rt_np_score
                 
             else:
-                # Initialize dataframe
-                df_real_time['id'] = temp_id
-                df_real_time['km_walk'] = 0
-                df_real_time['km_bike'] = 0
-                df_real_time['score'] = 0
+                # Real time numpy arrays
+                # temp_id will be used
+                rt_np_walk = np.zeros(temp_id.shape)
+                rt_np_bike = np.zeros(temp_id.shape)
+                rt_np_score = np.zeros(temp_id.shape)
+                
                 # Friends dataframe
                 df_friends = pd.DataFrame(list(map(lambda x: temp_np[x][3], iter_np)), columns = col_names)
                 df_friends.index = pd.Index(temp_id)
                 # Save friends dataframe
-                df_friends.to_csv('users_friends.csv')
+                df_friends.to_pickle('data/users_friends.pkl')
                 
-            # Save dataframe as a pickle file
-            df.to_csv('users_stats.csv')
+            # Save dataframe as a csv file
+            df.to_pickle('data/users_stats.pkl')
             # Save output
-            df_real_time.to_csv('users_real_time.csv')
+            df_real_time = pd.DataFrame(data = np.transpose([rt_np_walk, rt_np_bike, rt_np_score]), 
+                                        columns = ['km_walk', 'km_bike', 'score'], 
+                                        index = temp_id)
+            df_real_time.to_pickle('data/users_real_time.pkl')
             
             # Drop rows
             df = df.tail(USERS_TOTAL*4)
@@ -326,9 +315,9 @@ while True:
             time.sleep(2)
             
             
-#     except Exception as err:
-#         print(f"Unexpected {err}, {type(err)}")
-#         break
+    except Exception as err:
+        print(f"Unexpected {err}, {type(err)}")
+        break
 
 # Not taking into account the first iteration.
 print(f'Average execution time per iteration: {sum(time_count[1:])/(len(time_count)-1)}')
