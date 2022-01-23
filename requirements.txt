@@ -1,5 +1,5 @@
 Faker
-geopy.distance
+geopy
 keyboard
 numpy
 pandas
