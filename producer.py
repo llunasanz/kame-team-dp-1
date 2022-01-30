@@ -8,6 +8,10 @@ import numpy as np
 import pickle
 import random
 import time
+import json
+import base64
+import chardet
+import binascii
 
 faker = Faker('es_ES')
 USERS_TOTAL = 100
@@ -101,15 +105,19 @@ iter_np = range(USERS_TOTAL)
 users_generated=generate_step()
 # The code goes here
 print("code")
-# Send the data to Kafka/database (instead of writing inside a folder)
-# Maybe, different filename has not any sense at Kafka.
-temp = np.array(list(map(lambda v: list(list(users_generated.values())[v].values()), iter_np)), dtype=object)
-temp = np.array(list(map(lambda v: np.delete(np.append(temp[v], [temp[v][4].get('lat'), temp[v][4].get('lon')]), 4), iter_np)))
-            
+
+def encode_to_bytes(array_) -> str:
+    # Convert the byte representation to base 64 representation
+    data = base64.b64encode(bytes(str(array_), 'utf-8'))
+    return data
+
+
 p.poll(k)
-p.produce('numtest', temp, callback=delivery_report) 
+# p.produce('numtest', temp.tobytes(), callback=delivery_report) 
+p.produce('numtest', encode_to_bytes(users_generated), callback = delivery_report)
 p.flush()
 # Wait
+# print(''.join(receive_and_decode_bytes_to_numpy_array((encode_and_transmit_numpy_array_in_bytes(users_generated)))))
 # Maybe, it could be removed.
 time.sleep(2)
 k += 1
