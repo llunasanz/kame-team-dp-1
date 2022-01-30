@@ -1,7 +1,7 @@
 # Kame Data Management
 Making data powerfuler.
 
-<img src="kame_logo_1.png" alt="drawing" width="125"/>
+<img src="kame_logo_1.jpg" alt="drawing" width="125"/>
 
 # Data Project 1
 ## Master en Data Analytics - EDEM
