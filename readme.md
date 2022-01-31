@@ -20,3 +20,9 @@ Zurich quiere validar su modelo de negocio de actividad de seguros personalizado
 
 Para ello Zurich ha solicitado a EDEM un piloto en el que se vea cuánto ha caminado cada persona en kms y le asigne una puntuación o prima en relación a la media.
 
+## Modo de empleo
+
+1. Clonar el repositorio.
+2. Instalar las librerías usando: pip install -r requirements.
+
+Ahora debereis entrar a la carpeta de kafka y seguir las instrucciones.
