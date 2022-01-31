@@ -18,7 +18,7 @@ create table Custom
     disability bit null,
     previousPathology bit  null,
     CP int not null,
-    constraint clientId
+  
         
 );
 
