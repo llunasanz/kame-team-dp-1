@@ -97,27 +97,27 @@ def delivery_report(err, msg):
         print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 
-
-k = 0
-# Iterable
-iter_np = range(USERS_TOTAL)
-
-users_generated=generate_step()
-# The code goes here
-print("code")
-
 def encode_to_bytes(array_) -> str:
     # Convert the byte representation to base 64 representation
     data = base64.b64encode(bytes(str(array_), 'utf-8'))
     return data
 
+k = 0
+# Iterable
+iter_np = range(USERS_TOTAL)
+while k < 5:
+    users_generated=generate_step()
+    print(type(users_generated))
+    # The code goes here
+    print("code")
 
-p.poll(k)
-# p.produce('numtest', temp.tobytes(), callback=delivery_report) 
-p.produce('numtest', encode_to_bytes(users_generated), callback = delivery_report)
-p.flush()
-# Wait
-# print(''.join(receive_and_decode_bytes_to_numpy_array((encode_and_transmit_numpy_array_in_bytes(users_generated)))))
-# Maybe, it could be removed.
-time.sleep(2)
-k += 1
+    p.poll(k)
+    p.produce('user_data', encode_to_bytes(users_generated), callback = delivery_report)
+    p.flush()
+    # Wait
+    # print(''.join(receive_and_decode_bytes_to_numpy_array((encode_and_transmit_numpy_array_in_bytes(users_generated)))))
+    # Maybe, it could be removed.
+    time.sleep(2)
+    k += 1
+
+    
