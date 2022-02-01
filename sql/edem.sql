@@ -1,8 +1,8 @@
 create database zurich;
-use zurich;
+
 create table Custom
 (
-    Id_custom varchar(20) primary key,
+    Id_custom varchar(20) primary key not null,
     customName varchar(100) not null,
     customLastName varchar(100) null,
     age int not null,
@@ -17,7 +17,7 @@ create table Custom
     disability bit null,
     previousPathology bit  null,
     CP int not null
-  
+    
 );
 
 create table position
@@ -28,13 +28,22 @@ create table position
     latitude float not null,
     longitude float not null,
     time datetime not null,
-        foreign key (Id_custom) references Custom (id_custom) ON DELETE CASCADE)
-;
+        foreign key (Id_custom) references Custom (id_custom) ON DELETE CASCADE);
+  
 create table friends
 (
     Id_friends int auto_increment primary key,
     Id_custom varchar(20) not null,
     friend varchar(20) not null,
         foreign key (Id_custom) references Custom(Id_custom) ON DELETE CASCADE,
-        foreign key (friend) references Custom(customName) ON DELETE CASCADE
+        foreign key (friend) references Custom(Id_custom) ON DELETE CASCADE
+);
+
+create table ranking(
+
+    Id_custom varchar(20) primary key,
+    Km_walking float null,
+    km_bike float null,
+    punctuation float null, 
+	foreign key (Id_custom)references Custom(Id_custom) ON DELETE CASCADE
 );
