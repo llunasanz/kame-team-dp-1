@@ -107,12 +107,15 @@ k = 0
 iter_np = range(USERS_TOTAL)
 while k < 5:
     users_generated=generate_step()
-    print(type(users_generated))
     # The code goes here
     print("code")
+    user_friends = list()
+    user_friends.append(list(map(lambda v: list(users_generated.values())[v].get('id'), iter_np)))
+    user_friends.append(list(map(lambda v: list(users_generated.values())[v].get('friends'), iter_np)))
 
     p.poll(k)
     p.produce('user_data', encode_to_bytes(users_generated), callback = delivery_report)
+    p.produce('user_friends', encode_to_bytes(user_friends), callback = delivery_report)
     p.flush()
     # Wait
     # print(''.join(receive_and_decode_bytes_to_numpy_array((encode_and_transmit_numpy_array_in_bytes(users_generated)))))

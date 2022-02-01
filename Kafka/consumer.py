@@ -172,7 +172,6 @@ p = Producer({'bootstrap.servers': 'localhost:9092'})
 
 
 # CODE 
-c.subscribe(['user_data'])
 time_count = list()
 # Iterable
 iter_np = range(USERS_TOTAL)
@@ -185,6 +184,7 @@ k = 0
 
 ## LOOP
 while True:
+    c.subscribe(['user_data'])
     msg = c.poll(1.0)
 
     if msg is None:
@@ -193,18 +193,30 @@ while True:
         print("Consumer error: {}".format(msg.error()))
         continue
 
+
     # decoded = decode(msg.value())
     # print('Received message: {}'.format(receive_and_decode_bytes_to_numpy_array(msg.value())))
     # print(json.loads(msg.value))
 
     start_time = time.time()
+    # Get user_data
+    # Decode user data
     temp = decode_data(msg.value())
     temp = ast.literal_eval(temp)
     temp = np.array(list(map(lambda v: list(list(temp.values())[v].values()), iter_np)), dtype=object)
     temp = np.array(list(map(lambda v: np.delete(np.append(temp[v], [temp[v][4].get('lat'), temp[v][4].get('lon')]), 4), iter_np)))
-    # Test position
-    # print(temp[0][-1])
     df = np.concatenate([df, temp])
+
+    # Get user friends
+    c.subscribe(['user_friends'])
+    msg = c.poll(1.0)
+    if msg is None:
+        continue
+    if msg.error():
+        print("Consumer error: {}".format(msg.error()))
+        continue
+    friends = decode_data(msg.value())
+    friends = ast.literal_eval(friends)
 
     if k > 0:
         # Add values
@@ -254,9 +266,17 @@ while True:
         df_friends.index = pd.Index(temp_id)
         # Save friends dataframe
 
+
+    # Create list of list for score
+    user_score = list()
+    user_score.append(temp_id)
+    user_score.append(rt_np_walk)
+    user_score.append(rt_np_bike)
+    user_score.append(rt_np_score)
+
     # Send data to topics
     p.poll(k)
-    p.produce('user_score', encode_to_bytes(list(rt_np_score)), callback = delivery_report)
+    p.produce('user_score', encode_to_bytes(list(user_score)), callback = delivery_report)
     p.flush()
 
     # Drop rows
@@ -264,6 +284,7 @@ while True:
     # Print execution time
     time_count.append(time.time() - start_time)
     k += 1
+    # print(user_score)
     print("--- %s seconds ---" % time_count[-1])
 
 c.close()
