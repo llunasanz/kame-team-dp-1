@@ -12,6 +12,6 @@ $ docker run -d -p 80:80 html-server-image:dashboards
 
 3. Entra en localhost:80/cliente.html para la interfaz de cliente.
 4. Entra en localhost:80/zurich.html para la interfaz de zurich.
-
+5. Para navegar en el mapa de todos los usuarios de zurich entra en localhost:80/mapa.html
 
 
