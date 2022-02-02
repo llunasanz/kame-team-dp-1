@@ -14,7 +14,7 @@ import chardet
 import binascii
 
 faker = Faker('es_ES')
-USERS_TOTAL = 100
+USERS_TOTAL = 1000
 MAX_FRIENDS = 10
 users={}
 lat_min = 39.4
@@ -105,7 +105,7 @@ def encode_to_bytes(array_) -> str:
 k = 0
 # Iterable
 iter_np = range(USERS_TOTAL)
-while k < 5:
+while k < 3:
     users_generated=generate_step()
     # The code goes here
     print("code")

@@ -14,7 +14,7 @@ import keyboard
 import pandas as pd
 import time
 
-USERS_TOTAL = 100
+USERS_TOTAL = 1000
 iter_np = range(USERS_TOTAL)
 MAX_FRIENDS = 10
 
@@ -269,10 +269,10 @@ while True:
 
     # Create list of list for score
     user_score = list()
-    user_score.append(temp_id)
-    user_score.append(rt_np_walk)
-    user_score.append(rt_np_bike)
-    user_score.append(rt_np_score)
+    user_score.append(temp_id.tolist())
+    user_score.append(rt_np_walk.tolist())
+    user_score.append(rt_np_bike.tolist())
+    user_score.append(rt_np_score.tolist())
 
     # Send data to topics
     p.poll(k)
@@ -285,6 +285,6 @@ while True:
     time_count.append(time.time() - start_time)
     k += 1
     # print(user_score)
-    print("--- %s seconds ---" % time_count[-1])
+    # print("--- %s seconds ---" % time_count[-1])
 
 c.close()
