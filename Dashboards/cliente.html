@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
+    rel="stylesheet"> 
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <aside>
+            <div class="top">
+                <div class="logo">
+                    <img src= "./images/logo.png">
+                    <h2>ZURICH</h2> 
+                </div>
+                <div class="close" id="close-btn">
+                    <span class="material-icons-sharp">close</span> 
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <a href="#" class = "active"> 
+                    <span class="material-icons-sharp">grid_view</span>
+                    <h3>Página principal</h3>
+                </a>
+                <a href="#">
+                    <span class="material-icons-sharp">loyalty</span>
+                    <h3>Canjear puntos</h3>
+                </a>
+                <a href="#">
+                    <span class="material-icons-sharp">grid_view</span>
+                    <h3>Otros</h3>
+                </a>
+                <a href="#">
+                    <span class="material-icons-sharp"></span>
+                    <h3>Cerrar Sesión</h3>
+                </a>
+            </div>
+        </aside>
+        <!---------------END OF ASIDE----------------> 
+        <main>
+            <h1>Dashboard</h1>
+
+            <div class="date">
+                <input type="date">
+            </div>
+
+            <div class="insights">
+                <div class="KM Andados">
+                    <span class="material-icons-sharp">directions_walk</span> 
+                    <div class="middle">
+                        <div class="left">
+                            <h3>KM Andados</h3>
+                            <h1>8.23</h1>
+                    </div>
+                    <div class="progress">
+                        <svg>
+                            <circle cx="38" cy="38" r="36"></circle>
+                        </svg>
+                        <div class="number">
+                            <p></p>
+                        </div>
+                    </div>
+            </div>
+            <small class="text-muted">Últimas 24 horas</small>
+        </div>
+        <!-------------------END KM ANDADOS-------------------->
+            <div class="KM Bici">
+                <span class="material-icons-sharp">directions_bike</span>
+                <div class="middle">
+                    <div class="left">
+                        <h3>KM en Bicicleta</h3>
+                        <h1>0</h1>
+                </div>
+                <div class="progress">
+                    <svg>
+                        <circle cx="38" cy="38" r="36"></circle>
+                    </svg>
+                    <div class="number">
+                        <p></p>
+                    </div>
+                </div>
+        </div>
+        <small class="text-muted">Últimas 24 horas</small>
+    </div>
+    <!------------------------END KM BICI------------------------>
+            <div class="KM Totales">
+                <span class="material-icons-sharp">sports_score</span>
+                <div class="middle">
+                    <div class="left">
+                        <h3>KM Totales</h3>
+                        <h1>32.40</h1>
+                </div>
+                <div class="progress">
+                    <svg>
+                        <circle cx="38" cy="38" r="36"></circle>
+                    </svg>
+                    <div class="number">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <!----------------------END OF KM TOTALES-------------------->
+    </div>
+    <!-----------------------END OF INSIGHTS--------------------->
+
+    <div class = "mapa">
+        <div class = "ubicacion">
+            <div class = "left">
+                <h2>Tu ubicación</h2>
+                <div id="map"></div>
+                <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+                <script>
+                    var map = L.map('map').
+                       setView([39.46750, -0.35],
+                       12.2);
+                  
+                  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+                  maxZoom: 18
+                  }).addTo(map);
+                  
+                  L.control.scale().addTo(map);
+                  
+                  L.marker([39.45900, -0.35],{draggable: true}).addTo(map);
+                  </script>
+            </div>
+        </div>
+    </div>  
+    </main>
+    <!----------------------END OF MAIN-------------------->
+    <div class="rigth">
+        <div class="top">
+            <button id="menu-btn">
+                <span class="material-icons-sharp">menu</span>
+            </button>
+            <div class="theme-toggler">
+                <span class="material-icons-sharp active">light_mode</span>
+                <span class="material-icons-sharp">dark_mode</span> 
+            </div>
+            <div class="profile">
+                <div class="info">
+                    <p>Hola Admin!</p>
+                    <small class="text-muted">Admin</small>
+                </div>
+                <div class="profile-photo">
+                    <img src= "./images/profilephoto.png">
+                </div>
+            </div>
+        </div>
+        <!---------------------END OF TOP-------------------->
+        <div class="recent-updates">
+            <h2>Objetivos</h2>
+            <div class="updates">
+                <div class="update">
+                    <div class="message">
+                        <p><b>Anda 50km en un mes (5 pts).</b></p>
+            </div>
+            <div class="updates">
+                <div class="update">
+                    <div class="message">
+                        <p><b>Recorre 50km en bicicleta (5 pts).</b></p>
+            </div>
+            <div class="updates">
+                <div class="update">
+                    <div class="message">
+                        <p><b>Acumula 150km en total (10 pts).</b></p><div class="updates">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-----------------END OF RECENT UPDATES---------------->
+        <div class="puntuacion">
+            <span class="material-icons-sharp">score</span>
+            <div class="middle">
+                <div class="left">
+                    <h2>Tus puntos</h2>
+                    <h1>60.7</h1>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
