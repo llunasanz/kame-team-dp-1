@@ -46,3 +46,11 @@ create table friends
     friend_9 varchar(20) null,
         foreign key (Id_custom) references Custom(Id_custom) ON DELETE CASCADE
 );
+
+create table ranking (
+    Id_custom varchar(20) primary key,
+    Km_walking float null,
+    km_bike float null,
+    punctuation float null, 
+	foreign key (Id_custom)references Custom(Id_custom) ON DELETE CASCADE
+);
