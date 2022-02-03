@@ -13,6 +13,7 @@ import geopy.distance
 import keyboard
 import pandas as pd
 import time
+import mysql.connector
 
 USERS_TOTAL = 1000
 iter_np = range(USERS_TOTAL)
@@ -162,6 +163,36 @@ def delivery_report(err, msg):
     else:
         print('[consumer.py] Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
+def insert_custom(user):
+    val = (user[0], user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], user[13], user[14], user[15], user[16], user[17])
+    sql = """INSERT INTO Custom (Id_custom,customName, customLastName, age, gender, weight, height, bloodPressureSist, bloodPressureDiast, cholesterol, smoker, drinking, disability, previousPathology, CP) Values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def update_custom(user):
+    val = (user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], user[13], user[14], user[15], user[16], user[17], user[0])
+    sql = """UPDATE Custom SET customName = %s, customLastName = %s, age = %s, gender = %s, weight = %s, height = %s, bloodPressureSist = %s, bloodPressureDiast = %s, cholesterol = %s, smoker = %s, drinking = %s, disability = %s, previousPathology = %s, CP = %s WHERE Id_custom = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def update_pos(pos, user):
+    val = (pos, user[4], user[-2], user[-1], user[-3], user[0])
+    sql = """UPDATE Custom SET Id_position = %s, transport = %s, latitude = %s, longitude = %s, time = %s WHERE Id_custom = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def update_ranking(score):
+    val = (score[1], score[2], score[3], score[0])
+    sql = """UPDATE Custom SET km_walking = %s, km_bike = %s, punctuation = %s WHERE Id_custom = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def update_friends(user, friends_list):
+    val = (friends_list, user[0])
+    sql = """UPDATE Custom SET friends_list = %s WHERE Id_custom = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
 c = Consumer({
     'bootstrap.servers': 'localhost:9092',
     'group.id': 0,
@@ -170,6 +201,13 @@ c = Consumer({
 
 p = Producer({'bootstrap.servers': 'localhost:9092'})
 
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="kamehameha"
+)
+
+mycursor = mydb.cursor()
 
 # CODE 
 time_count = list()
@@ -211,6 +249,7 @@ while k < 10:
     c.subscribe(['user_friends'])
     msg = c.poll(1.0)
     if msg is None:
+        print('[consumer.py] Waiting...')
         continue
     if msg.error():
         print("Consumer error: {}".format(msg.error()))
@@ -279,22 +318,23 @@ while k < 10:
 
     # Drop rows
     df = df[-2*USERS_TOTAL:]
-    # Print execution time
-    time_count.append(time.time() - start_time)
-    k += 1
 
     # FIXME: right here, there was an if statement to write data to database. However, a BSoD had taken place and this script gots empty.
     # Also, functions are lost.
         # Pseudo code recreation:
-    # if k == 0:
-        # list(map(lambda x: insert_custom(temp[x], iter_np))
-    # else:
-        # list(map(lambda x: update_custom(temp[x]), iter_np))
-    # list(map(lambda x: update_pos(temp[x], x), iter_np))
-    # list(map(lambda x: update_score(user_score), iter_np))
+    if k == 0:
+        list(map(lambda x: insert_custom(temp[x]), iter_np))
+    else:
+        list(map(lambda x: update_custom(temp[x]), iter_np))
+    list(map(lambda x: update_pos(x, temp[x]), iter_np))
+    list(map(lambda x: update_ranking(list([user_score[0][x], user_score[1][x], user_score[2][x], user_score[3][x]])), iter_np))
     # list(map(lambda x: update_friends(friends), iter_np))
 
     print('[consumer.py] Queries generated!')
+
+    # Print execution time
+    time_count.append(time.time() - start_time)
+    k += 1
     # print("--- %s seconds ---" % time_count[-1])
 
 c.close()
