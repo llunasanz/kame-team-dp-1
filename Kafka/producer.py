@@ -61,13 +61,13 @@ def initiate_data():
                 # print("No friend of yourself") 
         num = num + 1
 
-    print("DATA GENERATED")
+    print("[producer.py] DATA GENERATED")
 
 
 def generate_step():
     global users
     if len(users)>0:
-        print("STEP")
+        print("[producer.py] STEP")
         for element in users.items():
             users[element[0]]["time"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
             lat=users[element[0]]["position"]["lat"]
@@ -92,9 +92,9 @@ def delivery_report(err, msg):
     """ Called once for each message produced to indicate delivery result.
         Triggered by poll() or flush(). """
     if err is not None:
-        print('Message delivery failed: {}'.format(err))
+        print('[producer.py] Message delivery failed: {}'.format(err))
     else:
-        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+        print('[producer.py] Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 
 def encode_to_bytes(array_) -> str:
@@ -105,10 +105,10 @@ def encode_to_bytes(array_) -> str:
 k = 0
 # Iterable
 iter_np = range(USERS_TOTAL)
-while k < 3:
+while k < 10:
     users_generated=generate_step()
     # The code goes here
-    print("code")
+    # print("code")
     user_friends = list()
     user_friends.append(list(map(lambda v: list(users_generated.values())[v].get('id'), iter_np)))
     user_friends.append(list(map(lambda v: list(users_generated.values())[v].get('friends'), iter_np)))
@@ -123,4 +123,4 @@ while k < 3:
     time.sleep(2)
     k += 1
 
-    
+print('[producer.py] Demo finished!')

@@ -37,9 +37,9 @@ def delivery_report(err, msg):
     """ Called once for each message produced to indicate delivery result.
         Triggered by poll() or flush(). """
     if err is not None:
-        print('Message delivery failed: {}'.format(err))
+        print('[consumer_map.py] Message delivery failed: {}'.format(err))
     else:
-        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+        print('[consumer_map.py] Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 def color_producer(val):
     if val >= 50:
@@ -71,14 +71,14 @@ df_friends = pd.DataFrame(columns = col_names)
 k = 0
 
 ## LOOP
-while True:
+while k < 10:
     c.subscribe(['user_data'])
     msg = c.poll(1.0)
 
     if msg is None:
         continue
     if msg.error():
-        print("Consumer error: {}".format(msg.error()))
+        print("[consumer_map.py] Consumer error: {}".format(msg.error()))
         continue
 
 
@@ -98,17 +98,15 @@ while True:
     c.subscribe(['user_score'])
     msg = c.poll(1.0)
     if msg is None:
-        print('Waiting...')
+        print('[consumer_map.py] Waiting...')
         continue
     if msg.error():
-        print("Consumer error: {}".format(msg.error()))
+        print("[consumer_map.py] Consumer error: {}".format(msg.error()))
         continue
 
-    print('here')
     score = decode_data(msg.value())
     score = ast.literal_eval(score)
     rt_np_score = score[3]
-    print(type(rt_np_score))
 
     my_map = folium.Map(
         location= (39.45, -0.35),
@@ -127,7 +125,8 @@ while True:
     # Print execution time
     time_count.append(time.time() - start_time)
     k += 1
-    # print(user_score)
-    print("--- %s seconds ---" % time_count[-1])
+    print('[consumer_map.py] Map generated!')
+    # print("--- %s seconds ---" % time_count[-1])
 
 c.close()
+print('[consumer_map.py] Demo finished!')
