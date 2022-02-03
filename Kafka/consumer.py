@@ -164,32 +164,50 @@ def delivery_report(err, msg):
         print('[consumer.py] Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 def insert_custom(user):
-    val = (user[0], user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], user[13], user[14], user[15], user[16], user[17])
+    val = (user[0], user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], int(user[13]), user[14], int(user[15]), int(user[16]), user[17])
     sql = """INSERT INTO Custom (Id_custom,customName, customLastName, age, gender, weight, height, bloodPressureSist, bloodPressureDiast, cholesterol, smoker, drinking, disability, previousPathology, CP) Values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
     mycursor.execute("""USE zurich""")
     mycursor.execute(sql, val)
 
 def update_custom(user):
-    val = (user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], user[13], user[14], user[15], user[16], user[17], user[0])
+    val = (user[1], user[2], user[5], user[6], user[7], user[8], user[10], user[11], user[12], int(user[13]), user[14], int(user[15]), int(user[16]), user[17], user[0])
     sql = """UPDATE Custom SET customName = %s, customLastName = %s, age = %s, gender = %s, weight = %s, height = %s, bloodPressureSist = %s, bloodPressureDiast = %s, cholesterol = %s, smoker = %s, drinking = %s, disability = %s, previousPathology = %s, CP = %s WHERE Id_custom = %s"""
     mycursor.execute("""USE zurich""")
     mycursor.execute(sql, val)
 
-def update_pos(pos, user):
-    val = (pos, user[4], user[-2], user[-1], user[-3], user[0])
-    sql = """UPDATE Custom SET Id_position = %s, transport = %s, latitude = %s, longitude = %s, time = %s WHERE Id_custom = %s"""
+def insert_pos(pos, user):
+    val = (user[4], user[-2], user[-1], user[-3], user[0])
+    sql = """INSERT INTO position (transport, latitude, longitude, time, Id_custom) Values (%s,%s,%s,%s,%s)"""
     mycursor.execute("""USE zurich""")
     mycursor.execute(sql, val)
 
-def update_ranking(score):
-    val = (score[1], score[2], score[3], score[0])
-    sql = """UPDATE Custom SET km_walking = %s, km_bike = %s, punctuation = %s WHERE Id_custom = %s"""
+def update_pos(pos, user):
+    val = (user[4], user[-2], user[-1], user[-3], user[0], pos)
+    sql = """UPDATE position SET transport = %s, latitude = %s, longitude = %s, time = %s, Id_custom = %s WHERE Id_position = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def insert_ranking(id_user, walk, bike, score):
+    val = (id_user, walk, bike, score)
+    sql = """INSERT INTO ranking (Id_custom, km_walk, km_bike, punctuation) Values (%s,%s,%s,%s)"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def update_ranking(id_user, walk, bike, score):
+    val = (walk, bike, score, id_user)
+    sql = """UPDATE ranking SET km_walk = %s, km_bike = %s, punctuation = %s WHERE Id_custom = %s"""
+    mycursor.execute("""USE zurich""")
+    mycursor.execute(sql, val)
+
+def insert_friends(user, friends_list):
+    val = (user[0], friends_list)
+    sql = """INSERT INTO friends (Id_custom, friends_list) Values (%s,%s)"""
     mycursor.execute("""USE zurich""")
     mycursor.execute(sql, val)
 
 def update_friends(user, friends_list):
     val = (friends_list, user[0])
-    sql = """UPDATE Custom SET friends_list = %s WHERE Id_custom = %s"""
+    sql = """UPDATE friends SET friends_list = %s WHERE Id_custom = %s"""
     mycursor.execute("""USE zurich""")
     mycursor.execute(sql, val)
 
@@ -215,12 +233,8 @@ time_count = list()
 iter_np = range(USERS_TOTAL)
 df = np.array([]).reshape(0,21)
 
-col_names = list()
-list(map(lambda x: col_names.append('friend_' + str(x)), range(1,MAX_FRIENDS+1)))
-df_friends = pd.DataFrame(columns = col_names)
-k = 0
-
 ## LOOP
+k = 0
 while k < 10:
     c.subscribe(['user_data'])
     msg = c.poll(1.0)
@@ -321,15 +335,21 @@ while k < 10:
 
     # FIXME: right here, there was an if statement to write data to database. However, a BSoD had taken place and this script gots empty.
     # Also, functions are lost.
-        # Pseudo code recreation:
     if k == 0:
         list(map(lambda x: insert_custom(temp[x]), iter_np))
+        list(map(lambda x: insert_pos(x, temp[x]), iter_np))
+        list(map(lambda x: insert_friends(temp[x], ', '.join(friends[1][x])), iter_np))
+        list(map(lambda x: insert_ranking(user_score[0][x], user_score[1][x], user_score[2][x], user_score[3][x]),
+                 iter_np))
+
     else:
         list(map(lambda x: update_custom(temp[x]), iter_np))
-    list(map(lambda x: update_pos(x, temp[x]), iter_np))
-    list(map(lambda x: update_ranking(list([user_score[0][x], user_score[1][x], user_score[2][x], user_score[3][x]])), iter_np))
-    # list(map(lambda x: update_friends(friends), iter_np))
+        list(map(lambda x: update_pos(x, temp[x]), iter_np))
+        list(map(lambda x: update_friends(temp[x], ', '.join(friends[1][x])), iter_np))
+        list(map(lambda x: update_ranking(user_score[0][x], user_score[1][x], user_score[2][x], user_score[3][x]),
+                 iter_np))
 
+    mydb.commit()
     print('[consumer.py] Queries generated!')
 
     # Print execution time
@@ -338,4 +358,5 @@ while k < 10:
     # print("--- %s seconds ---" % time_count[-1])
 
 c.close()
+mydb.close()
 print('[consumer.py] Demo finished!')
