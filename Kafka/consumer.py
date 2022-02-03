@@ -14,7 +14,7 @@ import keyboard
 import pandas as pd
 import time
 
-USERS_TOTAL = 100
+USERS_TOTAL = 1000
 iter_np = range(USERS_TOTAL)
 MAX_FRIENDS = 10
 
@@ -158,9 +158,9 @@ def delivery_report(err, msg):
     """ Called once for each message produced to indicate delivery result.
         Triggered by poll() or flush(). """
     if err is not None:
-        print('Message delivery failed: {}'.format(err))
+        print('[consumer.py] Message delivery failed: {}'.format(err))
     else:
-        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+        print('[consumer.py] Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 c = Consumer({
     'bootstrap.servers': 'localhost:9092',
@@ -183,14 +183,14 @@ df_friends = pd.DataFrame(columns = col_names)
 k = 0
 
 ## LOOP
-while True:
+while k < 10:
     c.subscribe(['user_data'])
     msg = c.poll(1.0)
 
     if msg is None:
         continue
     if msg.error():
-        print("Consumer error: {}".format(msg.error()))
+        print("[consumer.py] Consumer error: {}".format(msg.error()))
         continue
 
 
@@ -262,17 +262,15 @@ while True:
         
         # Friends dataframe
         # FIXME: with Kafka running, it will be different.
-        df_friends = pd.DataFrame(list(map(lambda x: temp[x][3], iter_np)), columns = col_names)
-        df_friends.index = pd.Index(temp_id)
         # Save friends dataframe
 
 
     # Create list of list for score
     user_score = list()
-    user_score.append(temp_id)
-    user_score.append(rt_np_walk)
-    user_score.append(rt_np_bike)
-    user_score.append(rt_np_score)
+    user_score.append(temp_id.tolist())
+    user_score.append(rt_np_walk.tolist())
+    user_score.append(rt_np_bike.tolist())
+    user_score.append(rt_np_score.tolist())
 
     # Send data to topics
     p.poll(k)
@@ -284,7 +282,20 @@ while True:
     # Print execution time
     time_count.append(time.time() - start_time)
     k += 1
-    # print(user_score)
-    print("--- %s seconds ---" % time_count[-1])
+
+    # FIXME: right here, there was an if statement to write data to database. However, a BSoD had taken place and this script gots empty.
+    # Also, functions are lost.
+        # Pseudo code recreation:
+    # if k == 0:
+        # list(map(lambda x: insert_custom(temp[x], iter_np))
+    # else:
+        # list(map(lambda x: update_custom(temp[x]), iter_np))
+    # list(map(lambda x: update_pos(temp[x], x), iter_np))
+    # list(map(lambda x: update_score(user_score), iter_np))
+    # list(map(lambda x: update_friends(friends), iter_np))
+
+    print('[consumer.py] Queries generated!')
+    # print("--- %s seconds ---" % time_count[-1])
 
 c.close()
+print('[consumer.py] Demo finished!')
